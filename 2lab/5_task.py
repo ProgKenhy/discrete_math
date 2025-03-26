@@ -5,7 +5,7 @@ from functools import lru_cache
 def count_paths(m, n):
     return math.comb(m + n, m)
 
-m, n = 3, 5
+m, n = 18, 16
 print(f"Количество путей без ограничений: {count_paths(m, n)}")
 
 # Задача 2: с ограничениями

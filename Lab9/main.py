@@ -1,5 +1,4 @@
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from collections import defaultdict, deque
 import networkx as nx
@@ -192,22 +191,16 @@ class GraphK:
 
 def visualize_graph(edges, matching_edges_ford_fulkerson=None, matching_edges_kuhn=None):
     graph = nx.Graph(edges)
-    pos = nx.spring_layout(graph)
+    pos = nx.spring_layout(graph)  # Layout for graph visualization
 
-    plt.figure()
-    nx.draw(graph, pos, with_labels=True, node_color='lightblue', node_size=100, font_size=10)
+    nx.draw(graph, pos, with_labels=True, node_color='lightblue', node_size=500, font_size=10)
 
-    if matching_edges_ford_fulkerson:
-        nx.draw_networkx_edges(graph, pos, edgelist=matching_edges_ford_fulkerson,
-                               edge_color='red', width=2, label='Ford-Fulkerson')
+    # if matching_edges_ford_fulkerson:
+    #     nx.draw_networkx_edges(graph, pos, edgelist=matching_edges_ford_fulkerson, edge_color='red', width=2)
     if matching_edges_kuhn:
-        nx.draw_networkx_edges(graph, pos, edgelist=matching_edges_kuhn,
-                               edge_color='green', width=2, label='Kuhn')
+        nx.draw_networkx_edges(graph, pos, edgelist=matching_edges_kuhn, edge_color='green', width=2)
 
-    plt.legend()
-    plt.savefig("graph_visualization.png")
-    print("Graph visualization saved to graph_visualization.png")
-    plt.close()  # Important to free memory
+    plt.show()
 
 # 1. Проверка двудольности
 is_bipartite_result, part1, part2 = is_bipartite(edges)

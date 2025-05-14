@@ -2,6 +2,8 @@
 import heapq
 import math
 from collections import Counter
+from collections import defaultdict
+from math import ceil, log2
 
 class Node:
     """Представляет узел дерева Хаффмана."""
@@ -80,11 +82,11 @@ def analyze_text(file_path, allowed_characters):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             text = file.read()
-            original_size = len(text) * 8  # Размер в битах (1 символ = 1 байт = 8 бит)
+            original_size = len(text) * 5  # Размер в битах (1 символ = 1 байт = 8 бит)
             text_length = len(text)
 
             cleaned_text = clean_text(text, allowed_characters)
-            cleaned_size = len(cleaned_text) * 8  # Размер очищенного текста в битах
+            cleaned_size = len(cleaned_text) * 5  # Размер очищенного текста в битах
             print(f"Длина очищенного текста: {len(cleaned_text)} символов")
             print(f"Пример очищенного текста: {cleaned_text[:100]}...")
 
@@ -157,6 +159,35 @@ def analyze_text(file_path, allowed_characters):
             print(f"Коэффициент сжатия (Хаффман для символов): {cleaned_size / encoded_length_chars:.2f}x")
             print(f"Коэффициент сжатия (Хаффман для диграфов): {cleaned_size / encoded_length_digraphs:.2f}x")
             print(f"Коэффициент сжатия (равномерное кодирование): {cleaned_size / uniform_encoded_length:.2f}x")
+
+            freqs1 = defaultdict(int)
+            freqs2 = defaultdict(int)
+            for ch in text:
+                freqs1[ch] += 1
+            for i in range(len(text) - 1):
+                freqs2[text[i] + text[i + 1]] += 1
+            # Алгоритм LZW
+            LZW_dict = {ch: i for i, ch in enumerate(sorted(freqs1.keys()))}
+            next_code = len(LZW_dict)
+            compressed = []
+            w = ""
+
+            for c in text:
+                wc = w + c
+                if wc in LZW_dict:
+                    w = wc
+                else:
+                    compressed.append(LZW_dict[w])
+                    LZW_dict[wc] = next_code
+                    next_code += 1
+                    w = c
+            if w:
+                compressed.append(LZW_dict[w])
+            max_code = max(compressed) if compressed else 0
+            bits_per_code = max(5, ceil(log2(max_code + 1)))  # Минимум 5 бит
+            lzw_bits = len(compressed) * bits_per_code
+            print(f"Коэффициентс сжатия (LZW): {lzw_bits / encoded_length_chars:.2f}х")
+            print(f"Длина закодированного текста (LZW): {lzw_bits} бит")
 
     except FileNotFoundError:
         print(f"Ошибка: Файл {file_path} не найден.")
